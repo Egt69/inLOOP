@@ -342,3 +342,63 @@ body {
   .right-panel { padding: 40px 30px; }
   .bubble, .sticker, .shape-3d, .ambient-glow-1, .ambient-glow-2, .watermark, .floating-emoji { display: none; }
 }
+
+/* =========================================
+   ANIMASI LOADING SCREEN
+   ========================================= */
+.loader-logo {
+  background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+  width: 80px; 
+  height: 80px; 
+  border-radius: 24px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  color: white; 
+  font-size: 40px;
+  box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.5);
+  animation: pulseLogo 1.5s ease-in-out infinite alternate;
+  margin-bottom: 20px;
+}
+
+@keyframes pulseLogo {
+  0% { transform: scale(1) rotate(-5deg); box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.5); }
+  100% { transform: scale(1.1) rotate(5deg); box-shadow: 0 25px 40px -5px rgba(139, 92, 246, 0.7); }
+}
+
+.loader-text {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: 1px;
+  animation: fadeSlideUp 0.8s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes fadeSlideUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.loader-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background: var(--purple-main);
+  border-radius: 50%;
+  animation: bounceDot 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) { animation-delay: -0.32s; }
+.dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounceDot {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
