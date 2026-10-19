@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Room · inLOOP Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- SISI KIRI (SIDEBAR) -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon"><i class="fas fa-infinity"></i></div>
+        <div class="logo-text">
+          <span>i</span><span>n</span><span>L</span><span>O</span><span>O</span><span>P</span>
+        </div>
+      </div>
+      
+      <div class="sidebar-content">
+        <div class="section-title">Saluran Obrolan</div>
+        
+        <div class="room-item active" onclick="switchRoom('Umum', 'Ini adalah ruang publik. Semua orang bisa melihat pesanmu.', this)">
+          <i class="fas fa-hashtag"></i> # Umum
+          <span class="badge-unread">3</span>
+        </div>
+        <div class="room-item" onclick="switchRoom('Teknologi', 'Diskusi seputar gadget, coding, dan AI.', this)">
+          <i class="fas fa-hashtag"></i> # Teknologi
+        </div>
+        <div class="room-item" onclick="switchRoom('Random', 'Bahas apapun yang lagi seru hari ini.', this)">
+          <i class="fas fa-hashtag"></i> # Random
+        </div>
+      </div>
+
+      <!-- PROFIL BAWAH (SEKARANG BISA DIKLIK) -->
+      <div class="user-profile-footer" onclick="openProfileModal()">
+        <div style="position: relative;">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1&style=circle&backgroundColor=b6e3f4" alt="Rizky" id="sidebarAvatar">
+          <span class="notif-badge" id="profileNotif" style="display: none;">0</span>
+        </div>
+        <div class="user-info-footer">
+          <h4 id="sidebarName">Rizky</h4>
+          <p id="sidebarHandle">@rizky</p>
+        </div>
+        <div class="footer-actions">
+          <i class="fas fa-microphone-slash"></i>
+          <i class="fas fa-headphones"></i>
+          <i class="fas fa-cog"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- SISI KANAN (AREA CHAT) -->
+    <div class="chat-area">
+      
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <h2 id="headerTitle" class="slide-down-fade"><i class="fas fa-hashtag"></i> <span id="roomName">Umum</span></h2>
+          <p id="headerDesc" class="slide-down-fade">Ini adalah ruang publik. Semua orang bisa melihat pesanmu.</p>
+        </div>
+        <!-- TOMBOL KELUAR -->
+        <button onclick="logout()" style="margin-left: auto; background: #fee2e2; color: #dc2626; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+          <i class="fas fa-sign-out-alt"></i> Keluar
+        </button>
+      </div>
+
+      <div class="chat-messages" id="chatBox"></div>
+
+      <div class="chat-input-area" style="position: relative;">
+        
+        <!-- EMOJI PICKER POPUP -->
+        <div class="emoji-picker-popup" id="emojiPicker">
+          <div class="emoji-header">Pilih Emoji</div>
+          <div class="emoji-grid">
+            <span onclick="sendAnimatedEmoji('😀')">😀</span>
+            <span onclick="sendAnimatedEmoji('😂')">😂</span>
+            <span onclick="sendAnimatedEmoji('😭')">😭</span>
+            <span onclick="sendAnimatedEmoji('😍')">😍</span>
+            <span onclick="sendAnimatedEmoji('😡')">😡</span>
+            <span onclick="sendAnimatedEmoji('😎')">😎</span>
+            <span onclick="sendAnimatedEmoji('👍')">👍</span>
+            <span onclick="sendAnimatedEmoji('❤️')">❤️</span>
+            <span onclick="sendAnimatedEmoji('🔥')">🔥</span>
+            <span onclick="sendAnimatedEmoji('🎉')">🎉</span>
+            <span onclick="sendAnimatedEmoji('🚀')">🚀</span>
+            <span onclick="sendAnimatedEmoji('💩')">💩</span>
+          </div>
+        </div>
+
+        <!-- INPUT FILE UNTUK GAMBAR -->
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+
+        <!-- IKON TOOLS -->
+        <div class="input-tools">
+          <i class="fas fa-paperclip" onclick="document.getElementById('fileInput').click()" title="Kirim Gambar"></i>
+          <i class="far fa-smile" id="emojiBtn" onclick="toggleInputEmoji()" title="Emoji"></i>
+          <i class="fas fa-microphone" onclick="showAlert('Fitur voice note belum tersedia!')" title="Voice Note"></i>
+        </div>
+        
+        <input type="text" class="chat-input" id="messageInput" placeholder="Ketik pesan ke #Umum..." autocomplete="off">
+        <button class="btn-send" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+
+    <!-- MODAL EDIT PROFIL -->
+    <div class="modal-overlay" id="profileModal">
+      <div class="modal-content">
+        <h3>Edit Profil</h3>
+        <div class="avatar-preview">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1&style=circle&backgroundColor=b6e3f4" id="modalAvatar">
+        </div>
+        
+        <div class="form-group">
+          <label>Nama Tampilan</label>
+          <input type="text" id="inputName" value="Rizky" placeholder="Masukkan nama...">
+        </div>
+        <div class="form-group">
+          <label>Username (@)</label>
+          <input type="text" id="inputHandle" value="rizky" placeholder="Masukkan username...">
+        </div>
+        <div class="form-group">
+          <label>Ganti Avatar (Ketik Angka 1-50)</label>
+          <input type="number" id="inputSeed" value="1" min="1" max="50" placeholder="1-50" oninput="updateAvatarPreview()">
+        </div>
+
+        <button class="btn-save" onclick="saveProfile()">Simpan Perubahan</button>
+        <button class="btn-close" onclick="closeProfileModal()">Batal</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

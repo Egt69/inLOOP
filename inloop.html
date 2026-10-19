@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda · inLOOP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <style>
+    :root {
+      --purple-main: #a855f7;
+      --purple-dark: #6d28d9;
+      --purple-glow: rgba(168, 85, 247, 0.15);
+      --bg-light: #f8fafc;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-light); color: var(--text-dark);
+      line-height: 1.5; padding: 20px; min-height: 100vh;
+      position: relative; overflow-x: hidden; perspective: 1000px;
+    }
+
+    /* ================= BACKGROUND DEKORASI ================= */
+    .watermark {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      font-family: 'Fredoka', sans-serif; font-size: 15vw; font-weight: 700;
+      color: var(--purple-dark); opacity: 0.03; white-space: nowrap;
+      pointer-events: none; z-index: 0; letter-spacing: 1vw; text-transform: uppercase;
+    }
+
+    .ambient-glow-1, .ambient-glow-2 {
+      position: fixed; border-radius: 50%; filter: blur(120px); z-index: 0; pointer-events: none;
+    }
+    .ambient-glow-1 { width: 600px; height: 600px; background: rgba(168, 85, 247, 0.15); top: -100px; left: -100px; }
+    .ambient-glow-2 { width: 500px; height: 500px; background: rgba(59, 130, 246, 0.15); bottom: -100px; right: -100px; }
+
+    .bubble {
+      position: fixed; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      border-radius: 20px; padding: 10px 18px; display: flex; align-items: center; gap: 8px;
+      font-weight: 600; font-size: 12px; color: var(--text-dark); z-index: 1;
+      animation: floatBubble 10s infinite alternate ease-in-out; pointer-events: none;
+    }
+    .c1 { top: 15%; left: 2%; animation-duration: 9s; }
+    .c2 { bottom: 20%; right: 2%; animation-duration: 12s; animation-delay: 2s; }
+    
+    @keyframes floatBubble {
+      0% { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(-20px) translateX(10px); }
+      100% { transform: translateY(-10px) translateX(-10px); }
+    }
+
+    /* ================= APP CONTAINER ================= */
+    .app { max-width: 1200px; margin: 0 auto; position: relative; z-index: 10; }
+
+    /* HEADER */
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
+      padding: 12px 28px; border-radius: 60px;
+      box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.15), 0 0 20px rgba(0,0,0,0.02);
+      border: 1px solid rgba(255, 255, 255, 0.6); margin-bottom: 30px;
+      animation: slideUpFade 0.6s var(--ease-smooth) forwards;
+    }
+
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-area { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .logo-icon {
+      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 20px; box-shadow: 0 6px 12px -4px var(--purple-glow);
+      transform: rotate(-3deg);
+    }
+    .logo-text { font-family: 'Fredoka', sans-serif; font-size: 26px; font-weight: 700; color: var(--text-dark); }
+    .logo-text span { color: var(--purple-main); }
+
+    .nav-links { display: flex; gap: 8px; }
+    .nav-links a {
+      text-decoration: none; color: var(--text-muted); font-weight: 600;
+      padding: 8px 16px; border-radius: 40px; transition: all 0.2s;
+      font-size: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .nav-links a i { font-size: 16px; }
+    .nav-links a:hover, .nav-links a.active { background: #f3e8ff; color: var(--purple-dark); }
+
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+    .avatar-sm { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); cursor: pointer; }
+    .btn-logout {
+      background: #fee2e2; color: #dc2626; border: none; padding: 10px 16px;
+      border-radius: 40px; cursor: pointer; font-weight: 700; font-size: 13px;
+      transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
+
+    /* MAIN GRID */
+    .main-grid { display: grid; grid-template-columns: 1fr 2.2fr 1.2fr; gap: 24px; }
+
+    .card {
+      background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
+      border-radius: 32px; padding: 24px;
+      box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.1), 0 0 20px rgba(0,0,0,0.02);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      animation: slideUpFade 0.6s var(--ease-smooth) forwards;
+    }
+
+    /* =========================================
+       SIDEBAR KIRI: KARTU UNGU (PURPLE CARD)
+       ========================================= */
+    .profile-card { 
+      display: flex; flex-direction: column; align-items: center; text-align: center; 
+      padding: 32px 24px; 
+      background: linear-gradient(145deg, #7c3aed, #4c1d95); /* Warna ungu */
+      border: none; color: white;
+      box-shadow: 0 20px 40px -10px rgba(109, 40, 217, 0.4);
+    }
+    .avatar-lg { 
+      width: 90px; height: 90px; border-radius: 30px; object-fit: cover; 
+      border: 3px solid rgba(255, 255, 255, 0.8); 
+      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3); margin-bottom: 16px; 
+      background: white;
+    }
+    .profile-name { font-family: 'Fredoka', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 4px; color: white; }
+    .profile-handle { color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-bottom: 20px; }
+    .profile-stats { display: flex; justify-content: center; gap: 32px; width: 100%; margin-bottom: 24px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-weight: 800; font-size: 20px; color: white; }
+    .stat-label { font-size: 12px; color: rgba(255, 255, 255, 0.7); font-weight: 500; }
+
+    .btn-primary {
+      width: 100%; padding: 14px; border: none; border-radius: 16px;
+      background: white; color: var(--purple-dark); 
+      font-weight: 800; font-family: 'Inter', sans-serif; font-size: 14px;
+      cursor: pointer; transition: all 0.25s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+
+    .divider { height: 1px; background: rgba(255, 255, 255, 0.2); margin: 24px 0; width: 100%; }
+
+    .suggestion { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; width: 100%; text-align: left;}
+    .suggestion img { width: 44px; height: 44px; border-radius: 14px; object-fit: cover; background: white; }
+    .suggestion-info { flex: 1; }
+    .suggestion-name { font-weight: 700; font-size: 14px; color: white; }
+    .suggestion-handle { font-size: 12px; color: rgba(255, 255, 255, 0.6); }
+    .suggestion .btn-follow { 
+      padding: 6px 12px; border-radius: 20px; border: none; 
+      background: rgba(255, 255, 255, 0.2); color: white; font-weight: 700; font-size: 12px; 
+      cursor: pointer; transition: 0.2s; 
+    }
+    .suggestion .btn-follow:hover { background: rgba(255, 255, 255, 0.3); }
+
+    /* =========================================
+       TENGAH (FEED & ANIMASI)
+       ========================================= */
+    .composer-card { margin-bottom: 24px; padding: 24px; }
+    .composer { display: flex; gap: 16px; align-items: flex-start; }
+    .composer-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+    .composer-input-area { flex: 1; }
+    .composer-input {
+      width: 100%; border: 2px solid #e2e8f0; border-radius: 20px;
+      padding: 16px 20px; font-family: 'Inter', sans-serif; font-size: 15px;
+      resize: none; outline: none; background: rgba(255, 255, 255, 0.5);
+      transition: all 0.25s; color: var(--text-dark);
+    }
+    .composer-input:focus { border-color: var(--purple-main); background: white; box-shadow: 0 0 0 4px var(--purple-glow); }
+    .composer-actions { display: flex; justify-content: space-between; margin-top: 16px; align-items: center; }
+    .composer-icons { display: flex; gap: 16px; color: var(--purple-main); }
+    .composer-icons i { font-size: 20px; cursor: pointer; transition: 0.2s; }
+    .composer-icons i:hover { transform: scale(1.1); }
+
+    .btn-post {
+      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+      color: white; padding: 10px 28px; border-radius: 40px; font-weight: 700;
+      border: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;
+      box-shadow: 0 8px 16px -6px rgba(109, 40, 217, 0.4);
+    }
+    .btn-post:hover { transform: scale(1.05); box-shadow: 0 12px 20px -6px rgba(109, 40, 217, 0.6); }
+
+    .post-card { padding: 24px; margin-bottom: 20px; }
+    .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .post-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; transition: opacity 0.4s ease; }
+    .post-info { flex: 1; }
+    .post-name { font-weight: 700; font-size: 15px; font-family: 'Fredoka', sans-serif; transition: opacity 0.4s ease; }
+    .post-handle { color: var(--text-muted); font-size: 13px; transition: opacity 0.4s ease; }
+    
+    .post-text { font-size: 15px; margin-bottom: 16px; color: var(--text-dark); line-height: 1.6; }
+    .post-media { border-radius: 20px; overflow: hidden; margin-bottom: 16px; }
+    .post-media img { width: 100%; height: 250px; object-fit: cover; display: block; }
+
+    .post-actions { display: flex; justify-content: space-between; max-width: 400px; }
+    .action-btn {
+      display: flex; align-items: center; gap: 6px; background: transparent;
+      border: none; padding: 8px 12px; border-radius: 20px; color: var(--text-muted);
+      font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s;
+    }
+    .action-btn i { font-size: 16px; }
+    .action-btn:hover { background: #f3e8ff; color: var(--purple-dark); }
+
+    /* SIDEBAR KANAN */
+    .trending-title { font-family: 'Fredoka', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .trend-item { margin-bottom: 20px; cursor: pointer; }
+    .trend-tag { font-weight: 700; font-size: 15px; color: var(--text-dark); transition: 0.2s; }
+    .trend-tag:hover { color: var(--purple-main); }
+    .trend-meta { font-size: 13px; color: var(--text-muted); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr 2fr; } .right-sidebar { display: none; } }
+    @media (max-width: 768px) {
+      .main-grid { grid-template-columns: 1fr; } .left-sidebar { display: none; }
+      .header { flex-wrap: wrap; padding: 12px 20px; border-radius: 24px; gap: 12px; }
+      .nav-links { order: 3; width: 100%; justify-content: space-between; }
+      .nav-links a span { display: none; } .nav-links a i { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND DEKORASI -->
+  <div class="watermark">JOIN THE LOOP</div>
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+  
+  <div class="bubble c1"><i class="fas fa-sparkles" style="color:#eab308;"></i> Keren banget fitur barunya! ✨</div>
+  <div class="bubble c2"><i class="fas fa-chart-line" style="color:#3b82f6;"></i> 10rb+ Looper Aktif</div>
+
+  <div class="app">
+    <header class="header">
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fas fa-infinity"></i></div>
+        <div class="logo-text">in<span>LOOP</span></div>
+      </div>
+      <div class="nav-links">
+        <a href="#" class="active"><i class="fas fa-home"></i><span>Beranda</span></a>
+        <a href="#"><i class="fas fa-compass"></i><span>Jelajahi</span></a>
+        <a href="#"><i class="fas fa-bell"></i><span>Notifikasi</span></a>
+        <a href="#"><i class="fas fa-envelope"></i><span>Pesan</span></a>
+      </div>
+      <div class="header-actions">
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rizky&style=circle" alt="Rizky" class="avatar-sm">
+        <button class="btn-logout" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Keluar
+        </button>
+      </div>
+    </header>
+
+    <div class="main-grid">
+      
+      <!-- KIRI: PROFIL UNGU -->
+      <aside class="left-sidebar">
+        <div class="card profile-card">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rizky&style=circle&backgroundColor=b6e3f4" alt="Rizky" class="avatar-lg">
+          <div class="profile-name">Rizky Pratama</div>
+          <div class="profile-handle">@rizkypratama</div>
+          
+          <div class="profile-stats">
+            <div class="stat-item"><div class="stat-value">128</div><div class="stat-label">Post</div></div>
+            <div class="stat-item"><div class="stat-value">2.4k</div><div class="stat-label">Pengikut</div></div>
+            <div class="stat-item"><div class="stat-value">892</div><div class="stat-label">Mengikuti</div></div>
+          </div>
+          
+          <button class="btn-primary"><i class="fas fa-pen"></i> Edit Profil</button>
+          
+          <div class="divider"></div>
+          
+          <div style="font-weight: 700; font-size: 14px; margin-bottom: 16px; align-self: flex-start; color: white;">Disarankan</div>
+          <div class="suggestion">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ZioHara&style=circle&backgroundColor=c0aede" alt="ZioHara">
+            <div class="suggestion-info">
+              <div class="suggestion-name">ZioHara</div>
+              <div class="suggestion-handle">@ziohara</div>
+            </div>
+            <button class="btn-follow"><i class="fas fa-plus"></i></button>
+          </div>
+          <div class="suggestion">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Zack&style=circle&backgroundColor=ffdfbf" alt="Zack">
+            <div class="suggestion-info">
+              <div class="suggestion-name">ZackCammuh</div>
+              <div class="suggestion-handle">@zackcammuh</div>
+            </div>
+            <button class="btn-follow"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- TENGAH: FEED & ANIMASI -->
+      <main class="feed">
+        <div class="card composer-card">
+          <div class="composer">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rizky&style=circle&backgroundColor=b6e3f4" alt="Avatar" class="composer-avatar">
+            <div class="composer-input-area">
+              <textarea class="composer-input" rows="2" placeholder="Apa yang sedang loop di pikiranmu?"></textarea>
+              <div class="composer-actions">
+                <div class="composer-icons">
+                  <i class="fas fa-image"></i>
+                  <i class="fas fa-video"></i>
+                  <i class="fas fa-smile"></i>
+                  <i class="fas fa-poll"></i>
+                </div>
+                <button class="btn-post">Posting</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- POSTINGAN DINAMIS (Animasi Berganti) -->
+        <div class="card post-card">
+          <div class="post-header">
+            <img src="" alt="Avatar" class="post-avatar" id="animAvatar">
+            <div class="post-info">
+              <div class="post-name" id="animName">ZioHara</div>
+              <div class="post-handle" id="animHandle">@ziohara · baru saja</div>
+            </div>
+          </div>
+          <div class="post-text" id="animText">
+            Baru nyoba bikin konten pakai AI, hasilnya di luar ekspektasi! 🤯 Ada yang udah coba juga? #AI #inLOOP
+          </div>
+          <div class="post-media">
+            <img src="" alt="Post Image" id="animImage">
+          </div>
+          <div class="post-actions">
+            <button class="action-btn"><i class="far fa-heart"></i> 238</button>
+            <button class="action-btn"><i class="far fa-comment"></i> 45</button>
+            <button class="action-btn"><i class="fas fa-retweet"></i> 12</button>
+            <button class="action-btn"><i class="far fa-share-square"></i> Bagikan</button>
+          </div>
+        </div>
+      </main>
+
+      <!-- KANAN: TRENDING -->
+      <aside class="right-sidebar">
+        <div class="card">
+          <div class="trending-title"><i class="fas fa-fire" style="color:#f97316;"></i> Trending</div>
+          <div class="trend-item">
+            <div class="trend-tag">#inLOOPBaru</div>
+            <div class="trend-meta">12.4k posts · trending</div>
+          </div>
+          <div class="trend-item">
+            <div class="trend-tag">#TeknologiAI</div>
+            <div class="trend-meta">8.921 posts</div>
+          </div>
+          <div class="trend-item">
+            <div class="trend-tag">#WeekendVibes</div>
+            <div class="trend-meta">5.230 posts</div>
+          </div>
+          <div class="trend-item">
+            <div class="trend-tag">#DesainGrafis</div>
+            <div class="trend-meta">3.112 posts</div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT ANIMASI -->
+  <script>
+    const users = [
+      { 
+        name: "ZioHara", handle: "@ziohara", 
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ZioHara&style=circle&backgroundColor=b6e3f4",
+        text: "Baru nyoba bikin konten pakai AI, hasilnya di luar ekspektasi! 🤯 #AI #inLOOP",
+        image: "https://picsum.photos/600/300?random=1"
+      },
+      { 
+        name: "ZackCammuh", handle: "@zackcammuh", 
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ZackCammuh&style=circle&backgroundColor=c0aede",
+        text: "Weekend vibes di Bandung! ☕️🌿 Udara sejuk, kopi enak, internet kencang. 😂",
+        image: "https://picsum.photos/600/300?random=2"
+      },
+      { 
+        name: "AlpenLimbe", handle: "@alpenlimbe", 
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=AlpenLimbe&style=circle&backgroundColor=ffdfbf",
+        text: "Thread: 5 alasan kenapa inLOOP beda dari medsos lain. No toxic, algoritma friendly! 🧵👇",
+        image: "https://picsum.photos/600/300?random=3"
+      }
+    ];
+
+    let currentIndex = 0;
+    const totalData = users.length;
+
+    const imgEl = document.getElementById('animAvatar');
+    const nameEl = document.getElementById('animName');
+    const handleEl = document.getElementById('animHandle');
+    const textEl = document.getElementById('animText');
+    const imgPostEl = document.getElementById('animImage');
+
+    // Set awal
+    imgEl.src = users[0].avatar;
+    imgPostEl.src = users[0].image;
+
+    function nextSlide() {
+      // Efek pudar (fade out)
+      imgEl.style.opacity = '0';
+      nameEl.style.opacity = '0';
+      handleEl.style.opacity = '0';
+
+      // Ganti data setelah 300ms
+      setTimeout(() => {
+        currentIndex = (currentIndex + 1) % totalData;
+        const newUser = users[currentIndex];
+
+        imgEl.src = newUser.avatar;
+        nameEl.textContent = newUser.name;
+        handleEl.textContent = newUser.handle + ' · baru saja';
+        textEl.textContent = newUser.text;
+        imgPostEl.src = newUser.image;
+
+        // Efek muncul (fade in)
+        imgEl.style.opacity = '1';
+        nameEl.style.opacity = '1';
+        handleEl.style.opacity = '1';
+      }, 300); 
+    }
+
+    setInterval(nextSlide, 4000);
+
+    function logout() {
+      if(confirm('Yakin mau keluar?')) {
+        window.location.href = 'chat.html'; // Kembali ke halaman login kamu
+      }
+    }
+  </script>
+</body>
+</html>
