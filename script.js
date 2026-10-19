@@ -23,11 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // === INISIALISASI SUPABASE (DARI CHAT.HTML) ===
-// window.supabaseClient sudah dibuat di chat.html
 const db = window.supabaseClient;
 
 let currentRoom = "Umum";
-let replyTarget = null;
 let unreadNotifications = 0;
 
 const chatBox = document.getElementById('chatBox');
@@ -86,7 +84,6 @@ function saveProfile() {
   document.getElementById('sidebarAvatar').src = currentUser.avatar;
   
   closeProfileModal();
-  // Tampilkan pesan sistem bahwa profil berubah
   showAlert("Profil berhasil diperbarui!");
 }
 
@@ -94,7 +91,6 @@ function saveProfile() {
 function renderMessages(messages) {
   chatBox.innerHTML = ''; 
   
-  // Tambahkan pemisah tanggal statis
   const dateEl = document.createElement('div');
   dateEl.className = 'date-separator';
   dateEl.innerHTML = `<span>Hari ini</span>`;
@@ -106,11 +102,9 @@ function renderMessages(messages) {
   }
   
   messages.forEach((msg) => {
-    // Konversi waktu dari database (UTC) ke waktu lokal
     const date = new Date(msg.created_at);
     const time = date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
     
-    // Cek apakah pesan ini milik kita sendiri
     const isSelf = (msg.user_name === currentUser.name);
     
     const msgEl = document.createElement('div');
@@ -131,13 +125,15 @@ function renderMessages(messages) {
     chatBox.appendChild(msgEl);
   });
   
-  // Scroll ke bawah
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 // === FUNGSI AMBIL PESAN DARI DATABASE ===
 async function loadMessages(room) {
-  chatBox.innerHTML = '<div style="text-align:center; color:#94a3b8; margin-top:20px;">Memuat pesan...</div>';
+  // Jangan tampilkan loading jika sedang realtime update
+  if (chatBox.innerHTML === '' || chatBox.innerHTML.includes('Memuat pesan')) {
+      chatBox.innerHTML = '<div style="text-align:center; color:#94a3b8; margin-top:20px;">Memuat pesan...</div>';
+  }
   
   const { data, error } = await db
     .from('messages')
@@ -155,14 +151,15 @@ async function loadMessages(room) {
 }
 
 // === REALTIME LISTENER (PESAN MASUK OTOMATIS) ===
-db.channel('custom-all-channel')
+// Kita dengarkan perubahan di tabel 'messages'
+db.channel('schema-db-changes')
   .on(
     'postgres_changes',
     { event: 'INSERT', schema: 'public', table: 'messages' },
     (payload) => {
       // Jika pesan baru masuk di room yang sedang aktif
       if (payload.new.room === currentRoom) {
-        loadMessages(currentRoom); // Muat ulang pesan
+        loadMessages(currentRoom); // Muat ulang pesan di layar
       } else {
         // Jika di room lain, beri notifikasi
         addNotification();
@@ -181,7 +178,7 @@ function switchRoom(room, desc, element) {
   
   const badge = element.querySelector('.badge-unread');
   if (badge) badge.style.display = 'none';
-  unreadNotifications = 0; // Reset notifikasi saat pindah room
+  unreadNotifications = 0;
   const notifBadge = document.getElementById('profileNotif');
   if(notifBadge) notifBadge.style.display = 'none';
 
@@ -197,7 +194,7 @@ function switchRoom(room, desc, element) {
 
   chatBox.style.opacity = '0';
   setTimeout(() => { 
-    loadMessages(room); // Ambil pesan dari database
+    loadMessages(room); 
     chatBox.style.opacity = '1'; 
   }, 150);
 }
