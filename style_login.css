@@ -346,8 +346,11 @@ body {
 /* =========================================
    ANIMASI LOADING SCREEN (WARNA UNGU)
    ========================================= */
+/* =========================================
+   ANIMASI LOADING SCREEN (WARNA & GERAK)
+   ========================================= */
 #loadingScreen {
-  background: linear-gradient(135deg, #6d28d9, #4c1d95) !important; /* Latar ungu */
+  background: linear-gradient(135deg, #6d28d9, #4c1d95) !important; 
 }
 
 .loader-logo {
@@ -372,6 +375,7 @@ body {
   100% { transform: scale(1.1) rotate(5deg); }
 }
 
+/* Tulisan inLOOP di Loading */
 .loader-text {
   font-family: 'Fredoka', sans-serif;
   font-size: 42px;
@@ -384,12 +388,14 @@ body {
 
 .loader-text span {
   display: inline-block;
-  animation: waveTextLoader 2s ease-in-out infinite;
+  /* Gunakan animasi waveText yang sama dengan sidebar */
+  animation: waveText 2s ease-in-out infinite;
 }
 
 .loader-text span.pink { color: #e879f9; }
 .loader-text span.white { color: #ffffff; }
 
+/* Jeda (delay) per huruf agar bergerak bergantian */
 .loader-text span:nth-child(1) { animation-delay: 0.0s; }
 .loader-text span:nth-child(2) { animation-delay: 0.15s; }
 .loader-text span:nth-child(3) { animation-delay: 0.3s; }
@@ -397,7 +403,8 @@ body {
 .loader-text span:nth-child(5) { animation-delay: 0.6s; }
 .loader-text span:nth-child(6) { animation-delay: 0.75s; }
 
-@keyframes waveTextLoader {
+/* Keyframes animasi wave (membesar dan mengecil) */
+@keyframes waveText {
   0%, 100% { transform: scale(1); }
   30% { transform: scale(1.2); }
   60% { transform: scale(1); }
