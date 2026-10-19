@@ -344,10 +344,15 @@ body {
 }
 
 /* =========================================
-   ANIMASI LOADING SCREEN
+   ANIMASI LOADING SCREEN (WARNA UNGU)
    ========================================= */
+#loadingScreen {
+  background: linear-gradient(135deg, #6d28d9, #4c1d95) !important; /* Latar ungu */
+}
+
 .loader-logo {
-  background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   width: 80px; 
   height: 80px; 
   border-radius: 24px;
@@ -356,29 +361,46 @@ body {
   justify-content: center;
   color: white; 
   font-size: 40px;
-  box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
   animation: pulseLogo 1.5s ease-in-out infinite alternate;
   margin-bottom: 20px;
+  backdrop-filter: blur(10px);
 }
 
 @keyframes pulseLogo {
-  0% { transform: scale(1) rotate(-5deg); box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.5); }
-  100% { transform: scale(1.1) rotate(5deg); box-shadow: 0 25px 40px -5px rgba(139, 92, 246, 0.7); }
+  0% { transform: scale(1) rotate(-5deg); }
+  100% { transform: scale(1.1) rotate(5deg); }
 }
 
 .loader-text {
   font-family: 'Fredoka', sans-serif;
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 700;
-  color: var(--text-dark);
   letter-spacing: 1px;
-  animation: fadeSlideUp 0.8s ease-out forwards;
-  opacity: 0;
-  transform: translateY(20px);
+  display: flex;
+  align-items: center;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-@keyframes fadeSlideUp {
-  to { opacity: 1; transform: translateY(0); }
+.loader-text span {
+  display: inline-block;
+  animation: waveTextLoader 2s ease-in-out infinite;
+}
+
+.loader-text span.pink { color: #e879f9; }
+.loader-text span.white { color: #ffffff; }
+
+.loader-text span:nth-child(1) { animation-delay: 0.0s; }
+.loader-text span:nth-child(2) { animation-delay: 0.15s; }
+.loader-text span:nth-child(3) { animation-delay: 0.3s; }
+.loader-text span:nth-child(4) { animation-delay: 0.45s; }
+.loader-text span:nth-child(5) { animation-delay: 0.6s; }
+.loader-text span:nth-child(6) { animation-delay: 0.75s; }
+
+@keyframes waveTextLoader {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.2); }
+  60% { transform: scale(1); }
 }
 
 .loader-dots {
@@ -390,9 +412,10 @@ body {
 .dot {
   width: 10px;
   height: 10px;
-  background: var(--purple-main);
+  background: #ffffff;
   border-radius: 50%;
   animation: bounceDot 1.4s infinite ease-in-out both;
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 
 .dot:nth-child(1) { animation-delay: -0.32s; }
