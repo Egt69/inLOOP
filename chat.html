@@ -37,7 +37,6 @@
         </div>
       </div>
 
-      <!-- PROFIL BAWAH (SEKARANG BISA DIKLIK) -->
       <div class="user-profile-footer" onclick="openProfileModal()">
         <div style="position: relative;">
           <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1&style=circle&backgroundColor=b6e3f4" alt="Rizky" id="sidebarAvatar">
@@ -63,7 +62,6 @@
           <h2 id="headerTitle" class="slide-down-fade"><i class="fas fa-hashtag"></i> <span id="roomName">Umum</span></h2>
           <p id="headerDesc" class="slide-down-fade">Ini adalah ruang publik. Semua orang bisa melihat pesanmu.</p>
         </div>
-        <!-- TOMBOL KELUAR -->
         <button onclick="logout()" style="margin-left: auto; background: #fee2e2; color: #dc2626; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px;">
           <i class="fas fa-sign-out-alt"></i> Keluar
         </button>
@@ -73,7 +71,6 @@
 
       <div class="chat-input-area" style="position: relative;">
         
-        <!-- EMOJI PICKER POPUP -->
         <div class="emoji-picker-popup" id="emojiPicker">
           <div class="emoji-header">Pilih Emoji</div>
           <div class="emoji-grid">
@@ -92,10 +89,8 @@
           </div>
         </div>
 
-        <!-- INPUT FILE UNTUK GAMBAR -->
         <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
 
-        <!-- IKON TOOLS -->
         <div class="input-tools">
           <i class="fas fa-paperclip" onclick="document.getElementById('fileInput').click()" title="Kirim Gambar"></i>
           <i class="far fa-smile" id="emojiBtn" onclick="toggleInputEmoji()" title="Emoji"></i>
@@ -135,6 +130,19 @@
 
   </div>
 
+  <!-- SUPABASE SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    // Kunci API Supabase Kamu
+    const SUPABASE_URL = "https://mlacnzxyhziqptniejcq.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_60E8yxVLZNmiLj-Afs2lCg_jdC6cYlW";
+    
+    // Inisialisasi Supabase dan simpan ke window agar bisa diakses script.js
+    const { createClient } = supabase;
+    window.supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+  
   <script src="script.js"></script>
 </body>
 </html>
