@@ -1,4 +1,4 @@
-// === 1. EFEK PARALLAX MOUSE (Untuk dekorasi background) ===
+// === 1. EFEK PARALLAX MOUSE ===
 const floatingElements = document.querySelectorAll('.bubble, .sticker');
 let mouseX = 0, mouseY = 0;
 let currentX = 0, currentY = 0;
@@ -22,7 +22,26 @@ function animateParallax() {
 animateParallax();
 
 
-// === 2. LOGIKA TOMBOL MASUK & ONBOARDING ===
+// === 2. FUNGSI MENAMPILKAN LAYAR LOADING ===
+function showLoadingAndRedirect() {
+  const loader = document.getElementById('loadingScreen');
+  
+  // Tampilkan layar loading
+  loader.style.display = 'flex';
+  
+  // Beri sedikit waktu agar browser merender (menampilkan) layar loading dengan opacity 0
+  setTimeout(() => {
+    loader.style.opacity = '1'; // Fade in layar loading
+  }, 50);
+
+  // Tunggu 2 detik (2000ms) agar animasi terlihat, lalu pindah halaman
+  setTimeout(() => {
+    window.location.href = 'chat.html';
+  }, 2000);
+}
+
+
+// === 3. LOGIKA TOMBOL MASUK & ONBOARDING ===
 const loginForm = document.getElementById('loginForm');
 
 loginForm.addEventListener('submit', function(e) {
@@ -39,9 +58,9 @@ loginForm.addEventListener('submit', function(e) {
   const savedProfile = localStorage.getItem('inloop_profile');
   
   if (savedProfile) {
-    // Jika profil sudah ada, langsung masuk ke chat
+    // Jika profil sudah ada, simpan nama dan panggil layar loading
     localStorage.setItem('inloop_user', usernameInput);
-    window.location.href = 'chat.html';
+    showLoadingAndRedirect();
   } else {
     // Jika profil belum ada, isi otomatis form onboarding dan tampilkan
     localStorage.setItem('inloop_user', usernameInput);
@@ -55,7 +74,7 @@ loginForm.addEventListener('submit', function(e) {
 });
 
 
-// === 3. LOGIKA SIMPAN PROFIL (ONBOARDING) ===
+// === 4. LOGIKA SIMPAN PROFIL (ONBOARDING) ===
 const btnSaveProfile = document.getElementById('btnSaveProfile');
 
 btnSaveProfile.addEventListener('click', function() {
@@ -79,6 +98,6 @@ btnSaveProfile.addEventListener('click', function() {
   };
   localStorage.setItem('inloop_profile', JSON.stringify(profileData));
   
-  // Pindah ke halaman chat
-  window.location.href = 'chat.html';
+  // Panggil layar loading untuk pindah ke chat
+  showLoadingAndRedirect();
 });
