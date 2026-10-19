@@ -1,4 +1,4 @@
-// === AMBIL DATA DARI PROFIL ===
+// === AMBIL DATA DARI PROFIL (ONBOARDING) ===
 const savedProfile = localStorage.getItem('inloop_profile');
 let currentUser = {};
 
@@ -13,6 +13,7 @@ if (savedProfile) {
   };
 }
 
+// Set nama di sidebar saat halaman dimuat
 document.addEventListener("DOMContentLoaded", () => {
   if(document.getElementById('sidebarName')) {
     document.getElementById('sidebarName').textContent = currentUser.name;
@@ -21,33 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-const defaultChatData = {
-  "Umum": [
-    { type: "date", text: "Hari ini" },
-    { user: "ZioHara", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ZioHara&style=circle&backgroundColor=b6e3f4", text: "Halo semuanya! Selamat datang di inLOOP.", time: "10:00", isSelf: false, reactions: [] }
-  ],
-  "Teknologi": [],
-  "Random": []
-};
+// === INISIALISASI SUPABASE (DARI CHAT.HTML) ===
+// window.supabaseClient sudah dibuat di chat.html
+const db = window.supabaseClient;
 
-let chatData = {};
+let currentRoom = "Umum";
 let replyTarget = null;
 let unreadNotifications = 0;
 
-// === SISTEM PENYIMPANAN ===
-function loadChatFromStorage() {
-  const savedData = localStorage.getItem('inloop_chat_data');
-  if (savedData) {
-    chatData = JSON.parse(savedData);
-  } else {
-    chatData = JSON.parse(JSON.stringify(defaultChatData));
-    saveChatToStorage();
-  }
-}
-function saveChatToStorage() { localStorage.setItem('inloop_chat_data', JSON.stringify(chatData)); }
-loadChatFromStorage();
-
-let currentRoom = "Umum";
 const chatBox = document.getElementById('chatBox');
 const messageInput = document.getElementById('messageInput');
 const roomNameEl = document.getElementById('roomName');
@@ -104,201 +86,170 @@ function saveProfile() {
   document.getElementById('sidebarAvatar').src = currentUser.avatar;
   
   closeProfileModal();
-  renderMessages(currentRoom); 
+  // Tampilkan pesan sistem bahwa profil berubah
+  showAlert("Profil berhasil diperbarui!");
 }
 
-// === RENDER PESAN ===
-function renderMessages(room) {
+// === RENDER PESAN KE LAYAR ===
+function renderMessages(messages) {
   chatBox.innerHTML = ''; 
-  const messages = chatData[room] || [];
   
-  messages.forEach((msg, index) => {
-    if (msg.type === 'date') {
-      const dateEl = document.createElement('div');
-      dateEl.className = 'date-separator';
-      dateEl.innerHTML = `<span>${msg.text}</span>`;
-      chatBox.appendChild(dateEl);
-      return;
-    }
+  // Tambahkan pemisah tanggal statis
+  const dateEl = document.createElement('div');
+  dateEl.className = 'date-separator';
+  dateEl.innerHTML = `<span>Hari ini</span>`;
+  chatBox.appendChild(dateEl);
 
-    const msgEl = document.createElement('div');
-    msgEl.className = `message ${msg.isSelf ? 'self' : ''}`;
+  if (messages.length === 0) {
+    chatBox.innerHTML += `<div style="text-align:center; color:#94a3b8; margin-top:20px; font-size:14px;">Belum ada pesan. Jadilah yang pertama!</div>`;
+    return;
+  }
+  
+  messages.forEach((msg) => {
+    // Konversi waktu dari database (UTC) ke waktu lokal
+    const date = new Date(msg.created_at);
+    const time = date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
     
-    let reactionsHTML = '';
-    if (msg.reactions && msg.reactions.length > 0) {
-      reactionsHTML = `<div class="msg-reactions">`;
-      msg.reactions.forEach(r => { reactionsHTML += `<div class="reaction">${r.emoji} ${r.count}</div>`; });
-      reactionsHTML += `</div>`;
-    }
-
-    let statusHTML = msg.isSelf ? `<i class="fas fa-check-double msg-status read"></i>` : '';
-    let isEmojiOnly = /^[\p{Emoji}\s]+$/u.test(msg.text) && !/[a-zA-Z0-9]/.test(msg.text);
-    let textClass = isEmojiOnly ? 'emoji-chat-text' : '';
-
-    let textContent = msg.text;
-    if (msg.isImage) {
-      textContent = `<img src="${msg.text}" style="max-width: 200px; border-radius: 12px; margin-top: 5px; display: block;">`;
-    }
-
-    let replyHTML = '';
-    if (msg.replyTo) {
-      replyHTML = `
-        <div class="quote-box">
-          <b>${msg.replyTo.user}</b><br>
-          ${msg.replyTo.text.length > 30 ? msg.replyTo.text.substring(0, 30) + '...' : msg.replyTo.text}
-        </div>
-      `;
-    }
-
-    let formattedText = textContent.replace(
-      new RegExp(`@${currentUser.handle}`, 'gi'), 
-      `<span style="color: #fbbf24; font-weight: bold; background: rgba(251, 191, 36, 0.2); padding: 0 4px; border-radius: 4px;">@${currentUser.handle}</span>`
-    );
+    // Cek apakah pesan ini milik kita sendiri
+    const isSelf = (msg.user_name === currentUser.name);
+    
+    const msgEl = document.createElement('div');
+    msgEl.className = `message ${isSelf ? 'self' : ''}`;
+    
+    let statusHTML = isSelf ? `<i class="fas fa-check-double msg-status read"></i>` : '';
 
     msgEl.innerHTML = `
-      <img src="${msg.avatar}" class="msg-avatar" alt="${msg.user}">
+      <img src="${msg.user_avatar}" class="msg-avatar" alt="${msg.user_name}">
       <div class="msg-content-wrapper">
         <div class="msg-bubble">
-          ${!msg.isSelf ? `<div class="msg-user">${msg.user} <span style="font-size:11px; font-weight:normal; color:#94a3b8;">${msg.time}</span></div>` : ''}
-          ${replyHTML}
-          <div class="${textClass}">${formattedText}</div>
-          ${msg.isSelf ? `<div style="text-align:right; font-size:11px; margin-top:4px; opacity:0.8;">${msg.time} ${statusHTML}</div>` : ''}
-          
-          <div class="msg-actions" id="actions-${index}">
-            <i class="fas fa-smile" title="Beri Reaksi" onclick="toggleEmojiPicker(${index})"></i>
-            <i class="fas fa-reply" title="Balas" onclick="setReply(${index})"></i>
-            ${msg.isSelf ? `<i class="fas fa-edit" title="Edit" onclick="editMessage('${room}', ${index})"></i>` : ''}
-            ${msg.isSelf ? `<i class="fas fa-trash" title="Hapus" onclick="deleteMessage('${room}', ${index})"></i>` : ''}
-          </div>
+          ${!isSelf ? `<div class="msg-user">${msg.user_name} <span style="font-size:11px; font-weight:normal; color:#94a3b8;">${time}</span></div>` : ''}
+          <div>${msg.text}</div>
+          ${isSelf ? `<div style="text-align:right; font-size:11px; margin-top:4px; opacity:0.8;">${time} ${statusHTML}</div>` : ''}
         </div>
-        ${reactionsHTML}
       </div>
     `;
     chatBox.appendChild(msgEl);
   });
+  
+  // Scroll ke bawah
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// === FITUR REPLY (BALAS) ===
-function setReply(index) {
-  const msg = chatData[currentRoom][index];
-  replyTarget = { user: msg.user, text: msg.text };
-  messageInput.placeholder = `Membalas ${msg.user}...`;
-  messageInput.focus();
-}
-function cancelReply() {
-  replyTarget = null;
-  messageInput.placeholder = `Ketik pesan ke #${currentRoom}...`;
-}
+// === FUNGSI AMBIL PESAN DARI DATABASE ===
+async function loadMessages(room) {
+  chatBox.innerHTML = '<div style="text-align:center; color:#94a3b8; margin-top:20px;">Memuat pesan...</div>';
+  
+  const { data, error } = await db
+    .from('messages')
+    .select('*')
+    .eq('room', room)
+    .order('created_at', { ascending: true });
 
-// === FITUR KIRIM GAMBAR ===
-function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const base64Image = e.target.result;
-    const time = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-    chatData[currentRoom].push({ user: currentUser.name, avatar: currentUser.avatar, text: base64Image, time: time, isSelf: true, reactions: [], isImage: true });
-    saveChatToStorage();
-    renderMessages(currentRoom);
-    event.target.value = ''; 
-  };
-  reader.readAsDataURL(file);
-}
-
-// === REAKSI, EDIT, HAPUS ===
-function toggleEmojiPicker(index) {
-  const existing = document.querySelector('.emoji-picker');
-  if (existing) existing.remove();
-  const actionsDiv = document.getElementById(`actions-${index}`);
-  const picker = document.createElement('div');
-  picker.className = 'emoji-picker';
-  picker.innerHTML = `
-    <span onclick="addReaction(${index}, '❤️')">❤️</span>
-    <span onclick="addReaction(${index}, '👍')">👍</span>
-    <span onclick="addReaction(${index}, '😂')">😂</span>
-    <span onclick="addReaction(${index}, '🔥')">🔥</span>
-  `;
-  actionsDiv.appendChild(picker);
-}
-function addReaction(index, emoji) {
-  const msg = chatData[currentRoom][index];
-  if (!msg.reactions) msg.reactions = [];
-  const existing = msg.reactions.find(r => r.emoji === emoji);
-  if (existing) existing.count++;
-  else msg.reactions.push({ emoji: emoji, count: 1 });
-  saveChatToStorage();
-  renderMessages(currentRoom);
-}
-function editMessage(room, index) {
-  const msg = chatData[room][index];
-  if (msg.isImage) { alert("Gambar tidak bisa diedit!"); return; }
-  const newText = prompt("Edit pesanmu:", msg.text);
-  if (newText !== null && newText.trim() !== "") {
-    msg.text = newText.trim();
-    saveChatToStorage();
-    renderMessages(room);
+  if (error) {
+    console.error("Gagal memuat pesan:", error);
+    chatBox.innerHTML = `<div style="text-align:center; color:#ef4444; margin-top:20px;">Gagal memuat pesan. Cek koneksi internet.</div>`;
+    return;
   }
-}
-function deleteMessage(room, index) {
-  if (confirm("Yakin mau hapus pesan ini?")) {
-    chatData[room].splice(index, 1);
-    saveChatToStorage();
-    renderMessages(room);
-  }
+
+  renderMessages(data);
 }
 
-// === GANTI ROOM & KIRIM PESAN ===
+// === REALTIME LISTENER (PESAN MASUK OTOMATIS) ===
+db.channel('custom-all-channel')
+  .on(
+    'postgres_changes',
+    { event: 'INSERT', schema: 'public', table: 'messages' },
+    (payload) => {
+      // Jika pesan baru masuk di room yang sedang aktif
+      if (payload.new.room === currentRoom) {
+        loadMessages(currentRoom); // Muat ulang pesan
+      } else {
+        // Jika di room lain, beri notifikasi
+        addNotification();
+      }
+    }
+  )
+  .subscribe();
+
+// === GANTI ROOM ===
 function switchRoom(room, desc, element) {
   currentRoom = room;
-  cancelReply();
+  messageInput.placeholder = `Ketik pesan ke #${room}...`;
+  
   document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
   element.classList.add('active');
+  
   const badge = element.querySelector('.badge-unread');
   if (badge) badge.style.display = 'none';
+  unreadNotifications = 0; // Reset notifikasi saat pindah room
+  const notifBadge = document.getElementById('profileNotif');
+  if(notifBadge) notifBadge.style.display = 'none';
+
   headerTitle.classList.remove('slide-down-fade');
   headerDescEl.classList.remove('slide-down-fade');
   void headerTitle.offsetWidth; 
+  
   roomNameEl.textContent = room;
   headerDescEl.textContent = desc;
+  
   headerTitle.classList.add('slide-down-fade');
   headerDescEl.classList.add('slide-down-fade');
+
   chatBox.style.opacity = '0';
-  setTimeout(() => { renderMessages(room); chatBox.style.opacity = '1'; }, 150);
+  setTimeout(() => { 
+    loadMessages(room); // Ambil pesan dari database
+    chatBox.style.opacity = '1'; 
+  }, 150);
 }
 
-function sendMessage() {
+// === KIRIM PESAN KE DATABASE ===
+async function sendMessage() {
   const text = messageInput.value.trim();
   if (text === '') return;
-  const time = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-  const newMessage = { user: currentUser.name, avatar: currentUser.avatar, text: text, time: time, isSelf: true, reactions: [] };
-  if (replyTarget) {
-    newMessage.replyTo = replyTarget;
-    cancelReply();
+  
+  messageInput.value = ''; // Kosongkan input langsung
+
+  const { error } = await db
+    .from('messages')
+    .insert([
+      { 
+        user_name: currentUser.name, 
+        user_avatar: currentUser.avatar, 
+        text: text, 
+        room: currentRoom 
+      }
+    ]);
+
+  if (error) {
+    console.error("Gagal mengirim:", error);
+    alert("Pesan gagal terkirim. Coba lagi.");
   }
-  chatData[currentRoom].push(newMessage);
-  saveChatToStorage();
-  renderMessages(currentRoom);
-  messageInput.value = '';
 }
 
-// === FITUR EMOJI TEKS ===
-function sendAnimatedEmoji(emoji) {
-  const time = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-  chatData[currentRoom].push({ user: currentUser.name, avatar: currentUser.avatar, text: emoji, time: time, isSelf: true, reactions: [] });
-  saveChatToStorage();
-  renderMessages(currentRoom);
+// === KIRIM EMOJI ===
+async function sendAnimatedEmoji(emoji) {
+  const { error } = await db
+    .from('messages')
+    .insert([
+      { 
+        user_name: currentUser.name, 
+        user_avatar: currentUser.avatar, 
+        text: emoji, 
+        room: currentRoom 
+      }
+    ]);
+    
+  if (error) console.error(error);
   document.getElementById('emojiPicker').classList.remove('active');
 }
 
+// === FITUR LAINNYA ===
 function toggleInputEmoji() {
   const picker = document.getElementById('emojiPicker');
   picker.classList.toggle('active');
 }
 function showAlert(message) { alert(message); }
 
-// === FUNGSI LOGOUT ===
 function logout() {
   if (confirm('Yakin mau keluar dari inLOOP?')) {
     localStorage.removeItem('inloop_user');
@@ -319,4 +270,7 @@ document.addEventListener('click', function(event) {
   }
 });
 
-renderMessages(currentRoom);
+// Muat pesan pertama kali halaman dibuka
+document.addEventListener("DOMContentLoaded", () => {
+  loadMessages(currentRoom);
+});
