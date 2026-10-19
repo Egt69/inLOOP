@@ -4,13 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login · inLOOP</title>
-  
-  <!-- Font & Ikon -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   
-  <!-- Hubungkan ke CSS -->
   <link rel="stylesheet" href="style_login.css">
 </head>
 <body>
@@ -70,7 +67,6 @@
       </div>
 
       <div class="card-wrapper">
-        <!-- Gelembung Chat Interaktif -->
         <div class="chat-preview">
           
           <div class="chat-bubble bubble-left" style="animation-delay: 0.3s;">
@@ -203,6 +199,24 @@
       <button id="btnSaveProfile" style="width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, var(--purple-main), var(--purple-dark)); color: white; font-family: 'Inter'; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 12px 24px -8px rgba(109, 40, 217, 0.4); transition: 0.2s;">
         Simpan & Masuk
       </button>
+    </div>
+  </div>
+
+  <!-- LAYAR LOADING (TRANSISI KE CHAT) -->
+  <div id="loadingScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.5s ease;">
+    
+    <div class="loader-logo">
+      <i class="fas fa-infinity"></i>
+    </div>
+    
+    <div class="loader-text">
+      inLOOP
+    </div>
+    
+    <div class="loader-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
     </div>
   </div>
 
